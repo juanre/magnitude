@@ -425,6 +425,15 @@ class Magnitude:
         with units, possibly including a / to separate a numerator and
         a denominator, to a Magnitude.
 
+        >>> a = mg(1, '')
+        >>> a.sunit2mag('m/s').toval()
+        1.0
+        >>> a.sunit2mag('km/h').toval()
+        0.27777777777777779
+        >>> print a.sunit2mag('W h')
+        3600.0000 m2 kg / s2
+        >>> print a.sunit2mag('W h').ounit('J')
+        3600.0000 J
         """
         m = Magnitude(1.0)
         if unit:
@@ -436,12 +445,32 @@ class Magnitude:
         return m
 
     def dimensionless(self):
+        """True if the magnitude's dimension exponents are all zero. 
+
+        >>> mg(2, 'K').dimensionless()
+        False
+        >>> mg(2, 'rad').dimensionless()
+        True
+        """
         return self.unit == [0] * 9
 
     def dimension(self):
+        """Return the dimension of the unit. 
+
+        >>> mg(2, 'J').dimension()
+        [2, -2, 0, 1, 0, 0, 0, 0, 0]
+        """
         return self.unit[:]
     
     def has_dimension(self, u):
+        """Returns true if the dimension of the magnitude matches u:
+
+        >>> s = mg(120, 'km/h') * (2, 'day')
+        >>> s.has_dimension('m')
+        True
+        >>> print s.ounit('cm')
+        576000000.0000 cm
+        """
         o = self.sunit2mag(u)
         return (self.unit == o.unit)
 
