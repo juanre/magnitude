@@ -121,7 +121,8 @@ you want to define pounds as a magnitude and associate with it the unit
 
     >>> lb = Magnitude(0.45359237, kg=1)
 
-To make it recognized automatically you also have to present it to the system:
+To make it recognized automatically you also have to introduce it to
+the system:
 
     >>> new_mag('lb', lb)
 
@@ -145,6 +146,7 @@ and its associated paper,
     http://www.cs.utexas.edu/users/novak/units95.html
 
 Bits and bytes (2009-11-03)
+---------------------------
 
 A previous version of the library used "bit" for bit and "b" for byte,
 leaving B for Bel.  Following Michael Scheper's suggestion we follow
@@ -198,16 +200,25 @@ _prefix = {'y': 1e-24,  # yocto
            'Ei': 2 ** 60  # Exbi (<- exa, 10^18)
            }
 
+
+###### Default print formatting options
+
 _prn_format = "%.*f"
 _prn_prec = 4
 _prn_units = True
 
 def default_format(fmt=None):
-    """Change the default ouptut format.  Include a fmt if and where
-    you need to specify the output precission.  Defaults to %.*f,
-    where the * stands for the precission.  Returns the default
+    """Get or set the default ouptut format.  Include a fmt if and
+    where you need to specify the output precission.  Defaults to
+    %.*f, where the * stands for the precission.  Returns the default
     format.
 
+    >>> print mg(2, 'm2').sqrt()
+    1.4142 m
+    >>> default_format("%.2f")
+    '%.2f'
+    >>> print mg(2, 'm2').sqrt()
+    1.41 m
     """
     global _prn_format
     if fmt is not None:
@@ -215,26 +226,42 @@ def default_format(fmt=None):
     return _prn_format
 
 def output_precision(prec=None):
-    """ Change the output precission.  Default is 4. Returns it. """
+    """Get or set the output precission.  Default is 4. Returns it.
+
+    >>> default_format("%.*f") # This is the out-of-the-box default
+    '%.*f'
+    >>> print mg(2, 'm2').sqrt()
+    1.4142 m
+    >>> output_precision(6)
+    6
+    >>> print mg(2, 'm2').sqrt()
+    1.414214 m
+    >>> output_precision(4)
+    4
+    """
     global _prn_prec
     if prec is not None:
         _prn_prec = prec
     return _prn_prec
 
 def output_units(un=None):
-    """Set the units output.  Default is True."""
+    """Get or set the units output.  Default is True.  If False output
+    is only numbers.
+
+    >>> print mg(2, 'day')
+    2.0000 day
+    >>> output_units(False)
+    False
+    >>> print mg(2, 'day').ounit('s')
+    172800.0000
+    """
     global _prn_units
     if un is not None:
         _prn_units = un
     return _prn_units
 
-# Resolution areas
 
-# Dirty way, used in the printing industry, to denote the area of a
-# pixel.  Can be like [300x1200] or like [600] (=[600x600]), meaning
-# the area of square pixels of size 1"/300 x 1"/1200 and 1"/600 x
-# 1"/600.  The square brackes are intended to show that we are talking
-# about areas.  The following functions make it easy to deal with them.
+###### Resolution areas
 
 def res2num(res):
     match = re.search(r'(\d+)x(\d+)', res)
@@ -243,10 +270,24 @@ def res2num(res):
     if (res[0] == '[') and (res[-1] == ']'):
         return (int(res[1:-1]), int(res[1:-1]))
 
-def isres(res):
+def _isres(res):
     return (len(res) > 2) and (res[0] == '[') and (res[-1] == ']')
 
 def res2m2(res):
+    """Bracketed resolutions are used in the printing industry, to
+    denote the area of a pixel.  Can be like [300x1200] or like [600]
+    (=[600x600]), meaning the area of square pixels of size 1"/300 x
+    1"/1200 and 1"/600 x 1"/600.  The square brackes are intended to
+    show that we are talking about areas.  This function converts them
+    to square meters.
+
+    >>> res2m2("[600x600]")
+    1.7921111111111111e-09
+    >>> res2m2("[600]")
+    1.7921111111111111e-09
+    >>> res2m2("[150x300]")
+    1.4336888888888889e-08
+    """
     hr, vr = res2num(res)
     return 0.0254 * 0.0254 / (vr * hr)
 
@@ -270,9 +311,27 @@ class Magnitude:
         self.oformat = None
 
     def copy(self):
+        """Builds and returns a copy of a magnitude, except the
+        default output unit, output factor, output precision and
+        output format.
+        >>> a = mg(1000, 'um')
+        >>> print a
+        1000.0000 um
+        >>> b = a.copy()
+        >>> print b
+        0.0010 m
+        """
         return Magnitude(self.val, *self.unit)
 
     def toval(self, ounit=''):
+        """Returns the numeric value of a magnitude in ounit or in its
+        default output unit.
+        >>> v = mg(100, 'km/h')
+        >>> v.toval()
+        100.0
+        >>> v.toval(ounit='m/s')
+        27.777777777777779
+        """
         m = self.copy()
         if not ounit:
             ounit = self.out_unit
@@ -296,7 +355,7 @@ class Magnitude:
             else:
                 st = oformat % (m.val)
             if _prn_units:
-                return st + ' ' + self.out_unit
+                return st + ' ' + self.out_unit.strip()
             return st
 
         if '*' in oformat:
@@ -326,7 +385,7 @@ class Magnitude:
             st += (num + '/ ' + den)
         elif num != ' ':
             st += num        
-        return st
+        return st.strip()
 
     def term2mag(self, s):
         """Converts a string with units to a Magnitude.  Can't divide: use
@@ -351,7 +410,7 @@ class Magnitude:
                       _mags.has_key(u[1:])):
                     pr = _prefix[u[0]]
                     u = _mags[u[1:]].copy();  u.val = pr * u.val
-                elif isres(u):
+                elif _isres(u):
                     u = Magnitude(res2m2(u), m=2)
                 elif u == '':
                     u = Magnitude(1.0)
@@ -674,10 +733,10 @@ def _init_mags():
     new_mag('cd', Magnitude(1.0, cd=1))
     new_mag('$', Magnitude(1.0, dollar=1))
     new_mag('dollar', Magnitude(1.0, dollar=1))
-    new_mag('b', Magnitude(1.0, bit=1))
+    new_mag('b', Magnitude(1.0, b=1))
 
     # Magnitudes for derived SI units
-    new_mag('B', Magnitude(8.0, bit=1))
+    new_mag('B', Magnitude(8.0, b=1))
     new_mag('rad', Magnitude(1.0))  # radian
     new_mag('sr', Magnitude(1.0))  # steradian
     new_mag('Hz', Magnitude(1.0, s=-1))  # hertz
@@ -702,7 +761,7 @@ def _init_mags():
     new_mag('Sv', Magnitude(1.0, m=2, s=-2))  # sievert, J/kg, dose equivalent
     new_mag('kat', Magnitude(1.0, s=-1, mol=1))  # katal, catalitic activity
     # Non-SI but almost:
-    new_mag('b', Magnitude(8.0, bit=1))  # byte, note that B is Bel, as in dB
+    new_mag('b', Magnitude(8.0, b=1))  # byte, note that B is Bel, as in dB
     
     # Funny Magnitudes with strange names
     # length
@@ -740,3 +799,7 @@ def _init_mags():
 
 if not _mags:
     _init_mags()
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
