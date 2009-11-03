@@ -1,8 +1,8 @@
 # magnitude  -- a module for computing with numbers with units.
 #
-# Version 0.9.3, October 2007
+# Version 0.9.4, November 2009
 #
-# Copyright (C) 2006 Juan Reyero (http://juanreyero.com).
+# Copyright (C) 2006-2009 Juan Reyero (http://juanreyero.com).
 # 
 # Licensed under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
@@ -35,7 +35,7 @@ The basic units understood by the magnitude module are:
     ---------    -------
     $            dollar ('dollar' is also acceptable)
     A            amperes
-    bit          binary digit
+    b            binary digit
     cd           candela
     K            degrees Kelvin
     kg           kilograms
@@ -80,6 +80,7 @@ package predefines these derived units:
     W            watt
     Wb           weber
     year
+    B            byte
 
 Two magnitudes have no units, 'rad' (radian - unit of plane angle) and 'sr'
 (steradian - unit of solid angle).
@@ -142,6 +143,14 @@ This code was very much inspired by
     http://www.cs.utexas.edu/users/novak/units.html
 and its associated paper,
     http://www.cs.utexas.edu/users/novak/units95.html
+
+Bits and bytes (2009-11-03)
+
+A previous version of the library used "bit" for bit and "b" for byte,
+leaving B for Bel.  Following Michael Scheper's suggestion we follow
+now IEEE 1541 and use "b" for bit and "B" for byte.  If the need
+arises I'll implement ad-hoc esupport for dB, but for the time being
+there is none.
 """
 
 import re, math
@@ -156,7 +165,7 @@ class MagnitudeError(Exception):
     pass
 
 _mags = {}
-_unames = ['m', 's', 'K', 'kg', 'A', 'mol', 'cd', '$', 'bit']
+_unames = ['m', 's', 'K', 'kg', 'A', 'mol', 'cd', '$', 'b']
 _prefix = {'y': 1e-24,  # yocto
            'z': 1e-21,  # zepto
            'a': 1e-18,  # atto
@@ -252,9 +261,9 @@ def numberp(n):  ## Python has to have a decent way to do this!
 
 class Magnitude:
     def __init__(self, val, m=0, s=0, K=0, kg=0, A=0, mol=0, cd=0, dollar=0,
-                 bit=0):
+                 b=0):
         self.val = val
-        self.unit = [m, s, K, kg, A, mol, cd, dollar, bit]
+        self.unit = [m, s, K, kg, A, mol, cd, dollar, b]
         self.out_unit = None
         self.out_factor = None
         self.oprec = None
@@ -588,7 +597,7 @@ class Magnitude:
 
     def to_bits(self):
         return Magnitude(math.ceil(math.log(self.val) / math.log(2.0)),
-                         bit=1)
+                         b=1)
 
     def sqrt(self):
         return self ** 0.5
@@ -665,9 +674,10 @@ def _init_mags():
     new_mag('cd', Magnitude(1.0, cd=1))
     new_mag('$', Magnitude(1.0, dollar=1))
     new_mag('dollar', Magnitude(1.0, dollar=1))
-    new_mag('bit', Magnitude(1.0, bit=1))
+    new_mag('b', Magnitude(1.0, bit=1))
 
     # Magnitudes for derived SI units
+    new_mag('B', Magnitude(8.0, bit=1))
     new_mag('rad', Magnitude(1.0))  # radian
     new_mag('sr', Magnitude(1.0))  # steradian
     new_mag('Hz', Magnitude(1.0, s=-1))  # hertz
