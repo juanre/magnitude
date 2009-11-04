@@ -776,6 +776,7 @@ class Magnitude:
         return self
 
     def __neg__(self):
+        """Multiply by -1 the value of the Magnitude."""
         r = self.copy()
         r.val = -r.val
         return r
