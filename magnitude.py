@@ -703,6 +703,8 @@ class Magnitude:
 
         >>> print mg(10, 'm/s') % 3
         1.0000 m / s
+        >>> print mg(10, 'm/s') % (3, 'W')
+        1.0000 m / s
         """
         r = self.copy()
         r.val = r.val % ensmg(n).toval()
@@ -717,20 +719,34 @@ class Magnitude:
         return self
 
     def __floordiv__(self, m):
+        """Floordiv of two Magnitude instances. 
+
+        >>> print mg(10, 'm/s') // (3, 's')
+        3.0000 m / s2
+        >>> print mg(-10, 'm/s') // (3, 'm')
+        -4.0000 1 / s
+        """
         r = self.copy()
         r._div_by(m)
         r.val = math.floor(r.val)
         return r
 
     def __ifloordiv__(self, m):
+        """Floordiv of two Magnitude instances. See __floordiv__."""
         self._div_by(m)
         self.val = math.floor(self.val)
         return self
         
     def __divmod__(self, m):
+        """Floordiv and remainder of two Magnitude instances. 
+
+        >>> [ str(i) for i in divmod(mg(10, 'm/s'), (3, 's')) ]
+        ['3.0000 m / s2', '1.0000 m / s']
+        """
         return (self.__floordiv__(m), self.__mod__(m))
 
     def __rdivmod__(self, m):
+        """Floordiv and remainder of two Magnitude instances. See __divmod___"""
         return (m.__floordiv__(self), m.__mod__(self))
 
     def __pow__(self, n, modulo=None):
