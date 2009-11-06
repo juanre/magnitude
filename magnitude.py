@@ -338,21 +338,29 @@ class Magnitude:
         self.oprec = None
         self.oformat = None
 
-    def copy(self):
+    def copy(self, with_format=False):
         """Builds and returns a copy of a magnitude. 
 
-        The copy includes value and units, but not the default output
-        unit, output factor, output precision and output format.
+        The copy includes value and units.  If with_format is set to
+        True the default output unit, output factor, output precision
+        and output format are also copied. 
 
         >>> a = mg(1000/3., 'mm')
         >>> a.output_prec(2)
         >>> print a
         333.33 mm
-        >>> b = a.copy()
-        >>> print b
+        >>> print a.copy()
         0.3333 m
+        >>> print a.copy(with_format=True)
+        333.33 mm
         """
-        return Magnitude(self.val, *self.unit)
+        cp = Magnitude(self.val, *self.unit)
+        if with_format:
+            cp.out_unit = self.out_unit
+            cp.out_factor = self.out_factor
+            cp.oprec = self.oprec
+            cp.oformat = self.oformat
+        return cp
 
     def toval(self, ounit=''):
         """Returns the numeric value of a magnitude.
@@ -750,6 +758,17 @@ class Magnitude:
         return (m.__floordiv__(self), m.__mod__(self))
 
     def __pow__(self, n, modulo=None):
+        """Return a Magnitude to the power n.  
+
+        If modulo is present return the result modulo it.
+
+        >>> print mg(10, 'm/s') ** 2
+        100.0000 m2 / s2
+        >>> print pow(mg(10, 'km/h'), mg(2)) # Exponent cannot have dimension
+        7.7160 m2 / s2
+        >>> print pow(mg(10, 'm/s'), 2, 3)
+        1.0000 m2 / s2
+        """
         r = self.copy()
         if modulo and (r.val == math.floor(r.val)):  # it's an integer
             # might have been converted to float during creation,
@@ -766,6 +785,7 @@ class Magnitude:
         return r
 
     def __ipow__(self, n):
+        """Power of a Magnitude.  See __pow___."""
         if not n.dimensionless():
             raise MagnitudeError("Cannot use a dimensional number as"
                                  "exponent, %s" % (n))
@@ -782,39 +802,90 @@ class Magnitude:
         return r
 
     def __pos__(self):
+        """Unary plus operator. """
         return self.copy()
 
     def __abs__(self):
+        """Absolute value of a Magnitude. 
+
+        >>> print abs(mg(-10, 'm'))
+        10.0000 m
+        """
         r = self.copy()
         r.val = abs(r.val)
         return r
 
     def __cmp__(self, m):
+        """Compare two Magnitude instances with the same dimensions.
+
+        >>> print mg(10, 'm/s') > (11, 'km/h')
+        True
+        >>> print mg(1, 'km') == (1000, 'm')
+        True
+        """
         if m.unit != self.unit:
             raise MagnitudeError("Incompatible units in comparison: %s and %s" %
                                  (m.unit, self.unit))
         return cmp(self.val, m.val)
 
     def __int__(self):
+        """Return the value of a Magnitude coerced to integer.
+
+        Note that this will happen to the value in the default output unit:
+
+        >>> print int(mg(10.5, 'm/s'))
+        10
+        >>> print int(mg(10.5, 'm/s').ounit('km/h'))
+        37
+        """
         return int(self.toval())
 
     def __long__(self):
+        """Return the value of a Magnitude coerced to long.  See __int__."""
         return long(self.toval())
 
     def __float__(self):
+        """Return the value of a Magnitude coerced to float.  See __int__."""
         return float(self.toval())
 
     def ceiling(self):
-        r = self.copy()
+        """Ceiling of a Magnitude's value in canonical units.
+
+        >>> print mg(10.2, 'm/s').ceiling()
+        11.0000 m / s
+        >>> print mg(3.6, 'm/s').ounit('km/h').ceiling()
+        4.0000 m / s
+        >>> print mg(50.3, 'km/h').ceiling()
+        14.0000 m / s
+        """
+        r = self.copy(with_format=False)
         r.val = math.ceil(r.val)
         return r
 
     def floor(self):
+        """Floor of a Magnitude's value in canonical units. 
+
+        >>> print mg(10.2, 'm/s').floor()
+        10.0000 m / s
+        >>> print mg(3.6, 'm/s').ounit('km/h').floor()
+        3.0000 m / s
+        >>> print mg(50.3, 'km/h').floor()
+        13.0000 m / s
+        """
         r = self.copy()
         r.val = math.floor(r.val)
         return r
 
     def round(self):
+        """Round a Magnitude's value in canonical units. 
+
+        >>> print mg(10.2, 'm/s').round()
+        10.0000 m / s
+        >>> print mg(3.6, 'm/s').ounit('km/h').round()
+        4.0000 m / s
+        >>> print mg(50.3, 'km/h').round()
+        14.0000 m / s
+        """
         r = self.copy()
         r.val = round(r.val)
         return r
@@ -824,13 +895,25 @@ class Magnitude:
                          b=1)
 
     def sqrt(self):
+        """Square root of a magnitude. 
+
+        >>> print mg(4, 'm2/s2').sqrt()
+        2.0000 m / s
+        >>> print mg(2, 'm/s').sqrt() ## wrong!!!  output of fractional units.
+        1.4142
+        """
         return self ** 0.5
         
     
 # Some helper functions
 
 def mg(v, unit='', ounit=''):
-    """Builds a Magnitude from a number and a units string"""
+    """Builds a Magnitude from a number and a units string:
+
+    >>> a = mg(10, 'm/s')
+    >>> print a  # (why two digits?)
+    10.00 m/s
+    """
     m = Magnitude(v)
     if unit:
         u = m.sunit2mag(unit)
