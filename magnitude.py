@@ -411,16 +411,16 @@ class Magnitude:
         u = self.unit
         num = ' '  # numerator
         for i in range(len(_unames)):
-            if u[i] > 1:
-                num = num + _unames[i] + str(u[i]) + ' '
-            elif u[i] == 1:
+            if u[i] == 1:
                 num = num + _unames[i] + ' '
+            elif u[i] > 0:
+                num = num + _unames[i] + str(u[i]) + ' '
         den = ''  # denominator
         for i in range(len(_unames)):
-            if u[i] < -1:
-                den = den + _unames[i] + str(-u[i]) + ' '
-            elif u[i] == -1:
+            if u[i] == -1:
                 den = den + _unames[i] + ' '
+            elif u[i] < 0:
+                den = den + _unames[i] + str(-u[i]) + ' '
         if den:
             if num == ' ':
                 num += '1 '
@@ -900,7 +900,7 @@ class Magnitude:
         >>> print mg(4, 'm2/s2').sqrt()
         2.0000 m / s
         >>> print mg(2, 'm/s').sqrt() ## wrong!!!  output of fractional units.
-        1.4142
+        1.4142 m0.5 / s0.5
         """
         return self ** 0.5
         
