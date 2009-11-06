@@ -437,6 +437,8 @@ class Magnitude:
         string represents.  Units are separated by spaces, powers are
         integers following the unit name.
 
+        Cannot parse fractional units. 
+
         >>> a = mg(1, '')
         >>> print a.term2mag('V2  A')
         1.0000 m4 kg2 / s6 A
