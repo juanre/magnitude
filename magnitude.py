@@ -217,16 +217,26 @@ _prefix = {'y': 1e-24,  # yocto
 
 ###### Default print formatting options
 
-_prn_format = "%.*f"
+_default_prn_format = "%.*f"
+_prn_format = _default_prn_format
 _prn_prec = 4
 _prn_units = True
 
+def reset_default_format():
+    """Resets the default output format.
+
+    By default the output format is "%.*f", where * gets replaced by
+    the output precision.
+    """
+    global _prn_format
+    _prn_format = _default_prn_format
+    
 def default_format(fmt=None):
     """Get or set the default ouptut format.  
 
     Include a fmt if and where you need to specify the output
-    precission.  Defaults to %.*f, where the * stands for the
-    precission.  Do nothing if fmt is None. 
+    precision.  Defaults to %.*f, where the * stands for the
+    precision.  Do nothing if fmt is None. 
 
     Returns: default format.
 
@@ -236,6 +246,7 @@ def default_format(fmt=None):
     '%.2f'
     >>> print mg(2, 'm2').sqrt()
     1.41 m
+    >>> reset_default_format()
     """
     global _prn_format
     if fmt is not None:
@@ -243,7 +254,7 @@ def default_format(fmt=None):
     return _prn_format
 
 def output_precision(prec=None):
-    """Get or set the output precission.  
+    """Get or set the output precision.  
 
     Package default is 4.  Do nothing is prec is None. 
 
@@ -437,7 +448,8 @@ class Magnitude:
         string represents.  Units are separated by spaces, powers are
         integers following the unit name.
 
-        Cannot parse fractional units. 
+        Cannot parse fractional units.  Cannot parse multi-digit
+        exponents.
 
         >>> a = mg(1, '')
         >>> print a.term2mag('V2  A')
@@ -901,7 +913,7 @@ class Magnitude:
 
         >>> print mg(4, 'm2/s2').sqrt()
         2.0000 m / s
-        >>> print mg(2, 'm/s').sqrt() ## wrong!!!  output of fractional units.
+        >>> print mg(2, 'm/s').sqrt()
         1.4142 m0.5 / s0.5
         """
         return self ** 0.5
@@ -912,9 +924,11 @@ class Magnitude:
 def mg(v, unit='', ounit=''):
     """Builds a Magnitude from a number and a units string:
 
-    >>> a = mg(10, 'm/s')
-    >>> print a  # (why two digits?)
-    10.00 m/s
+    >>> print mg(10, 'm/s')
+    10.0000 m/s
+    >>> a = mg(10, 'm/s', 'km/h')
+    >>> print a
+    36.0000 km/h
     """
     m = Magnitude(v)
     if unit:
@@ -926,7 +940,20 @@ def mg(v, unit='', ounit=''):
     return m
 
 def ensmg(m, unit=''):
-    """Ensures that something is a Magnitude."""
+    """Converts something in a Magnitude.
+
+    >>> print ensmg(10, 'Hz')
+    10.0000 Hz
+    >>> a = (4, 'mol')
+    >>> print ensmg(a)
+    4.0000 mol
+    >>> a = mg(1024, 'Pa')
+    >>> print ensmg(a)
+    1024.0000 Pa
+    >>> f = ensmg((10, 'Pa')) * (10, 'm2')
+    >>> print f.ounit('N')
+    100.0000 N
+    """
     if not isinstance(m, Magnitude):
         if type(m) == tuple:
             if len(m) == 2:
@@ -967,7 +994,15 @@ def __div(m1, *rest):
         return m
 
 def new_mag(indicator, mag):
-    """Define a new magnitude understood by the package."""
+    """Define a new magnitude understood by the package.
+
+    Defines a new magnitude type by giving it a name (indicator) and
+    its equivalence in the form of an already understood magnitude.
+
+    >>> new_mag('mile', mg(160934.4, 'cm'))
+    >>> print mg(100, 'mile/h').ounit('km/h')
+    160.9344 km/h
+    """
     _mags[indicator] = mag
 
 # Finally, define the Magnitudes and initialize _mags.
@@ -983,7 +1018,7 @@ def _init_mags():
     new_mag('cd', Magnitude(1.0, cd=1))
     new_mag('$', Magnitude(1.0, dollar=1))
     new_mag('dollar', Magnitude(1.0, dollar=1))
-    new_mag('b', Magnitude(1.0, b=1))
+    new_mag('b', Magnitude(1.0, b=1))           # bit
 
     # Magnitudes for derived SI units
     new_mag('B', Magnitude(8.0, b=1))
@@ -999,9 +1034,9 @@ def _init_mags():
     new_mag('V', Magnitude(1.0, m=2, kg=1, s=-3, A=-1))  # volt
     new_mag('F', Magnitude(1.0, m=-2, kg=-1, s=4, A=2))  # farad, C/V
     new_mag('ohm', Magnitude(1.0, m=2, kg=1, s=-3, A=-2))  # ohm, V/A
-    new_mag('S', Magnitude(1.0, m=-2, kg=-1, s=3, A=2))  # siemens, A/V, el cond.
-    new_mag('Wb', Magnitude(1.0, m=2, kg=1, s=-2, A=-1))  # weber, V.s, mag. flux
-    new_mag('T', Magnitude(1.0, kg=1, s=-2, A=-1))  # tesla, Wb/m2, mg flux dens.
+    new_mag('S', Magnitude(1.0, m=-2, kg=-1, s=3, A=2))  # siemens, A/V, el cond
+    new_mag('Wb', Magnitude(1.0, m=2, kg=1, s=-2, A=-1))  # weber, V.s, mag flux
+    new_mag('T', Magnitude(1.0, kg=1, s=-2, A=-1))  # tesla, Wb/m2, mg flux dens
     new_mag('H', Magnitude(1.0, m=2, kg=1, s=-2, A=-2))  # henry, Wb/A, induct.
     new_mag('degC', Magnitude(1.0, K=1))  # celsius, !!
     new_mag('lm', Magnitude(1.0, cd=1))  # lumen, cd.sr (=cd)), luminous flux
@@ -1013,7 +1048,7 @@ def _init_mags():
     # Non-SI but almost:
     new_mag('b', Magnitude(8.0, b=1))  # byte, note that B is Bel, as in dB
     
-    # Funny Magnitudes with strange names
+    ### Other
     # length
     new_mag("'", Magnitude(0.3048, m=1))  # feet
     new_mag('ft', Magnitude(0.3048, m=1))  # feet
