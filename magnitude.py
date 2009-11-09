@@ -929,6 +929,16 @@ def mg(v, unit='', ounit=''):
     >>> a = mg(10, 'm/s', 'km/h')
     >>> print a
     36.0000 km/h
+    >>> a = mg(1, 'B')
+    >>> print a
+    1.0000 B
+    >>> print a.ounit('b')
+    8.0000 b
+    >>> a = mg(1024, 'B')
+    >>> print a.ounit('b')
+    8192.0000 b
+    >>> print a.ounit('KiB')
+    1.0000 KiB
     """
     m = Magnitude(v)
     if unit:
@@ -1045,8 +1055,6 @@ def _init_mags():
     new_mag('Gy', Magnitude(1.0, m=2, s=-2))  # gray, J/kg, absorbed dose
     new_mag('Sv', Magnitude(1.0, m=2, s=-2))  # sievert, J/kg, dose equivalent
     new_mag('kat', Magnitude(1.0, s=-1, mol=1))  # katal, catalitic activity
-    # Non-SI but almost:
-    new_mag('b', Magnitude(8.0, b=1))  # byte, note that B is Bel, as in dB
     
     ### Other
     # length
