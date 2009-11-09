@@ -940,7 +940,7 @@ def mg(v, unit='', ounit=''):
     return m
 
 def ensmg(m, unit=''):
-    """Converts something in a Magnitude.
+    """Converts something to a Magnitude.
 
     >>> print ensmg(10, 'Hz')
     10.0000 Hz
