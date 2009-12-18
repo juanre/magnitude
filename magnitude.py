@@ -339,7 +339,7 @@ def _numberp(n):  ## Python has to have a decent way to do this!
             isinstance(n, types.IntType) or
             isinstance(n, types.LongType))
 
-class Magnitude:
+class Magnitude(object):
     def __init__(self, val, m=0, s=0, K=0, kg=0, A=0, mol=0, cd=0, dollar=0,
                  b=0):
         self.val = val
@@ -954,6 +954,8 @@ def ensmg(m, unit=''):
 
     >>> print ensmg(10, 'Hz')
     10.0000 Hz
+    >>> print ensmg(ensmg(1000, 'Hz'))
+    1000.0000 Hz
     >>> a = (4, 'mol')
     >>> print ensmg(a)
     4.0000 mol
@@ -973,15 +975,13 @@ def ensmg(m, unit=''):
                     return mg(m[0], unit)
                 return Magnitude(m[0])
             else:
-                raise MagnitudeError("Can't convert %s to Magnitude" %
-                                     (m,))
+                raise MagnitudeError("Can't convert %s to Magnitude" % (m,))
         elif _numberp(m):
             if unit:
                 return mg(m, unit)
             return Magnitude(m)
         else:
-            raise MagnitudeError("Can't convert %s to Magnitude" %
-                                 (m,))
+            raise MagnitudeError("Can't convert %s to Magnitude" % (m,))
     else:
         return m
 
