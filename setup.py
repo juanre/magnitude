@@ -7,6 +7,6 @@ setup(name='magnitude',
       description='Python library for computing with numbers with units',
       author='Juan Reyero',
       author_email='juan@juanreyero.com',
-      url='http://juanreyero.com/magnitude/',
+      url='http://juanreyero.com/open/magnitude/',
       py_modules=['magnitude'],
       scripts=['mgload.py'])
