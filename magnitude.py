@@ -575,6 +575,19 @@ class Magnitude(object):
                                 (self.out_factor.unit, self.unit))
         return self
 
+    def to_base_units(self):
+        """Forgets about the output unit and goes back to base units:
+
+        >>> a = mg(10, 'km')
+        >>> print a
+        10.0000 km
+        >>> print a.to_base_units()
+        10000.0000 m
+        """
+        self.out_unit = None
+        self.out_factor = None
+        return self
+
     def output_prec(self, prec):
         """Set the output precision for the Magnitude.
 
