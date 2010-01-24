@@ -339,7 +339,7 @@ def _numberp(n):  ## Python has to have a decent way to do this!
             isinstance(n, types.IntType) or
             isinstance(n, types.LongType))
 
-class Magnitude(object):
+class Magnitude():
     def __init__(self, val, m=0, s=0, K=0, kg=0, A=0, mol=0, cd=0, dollar=0,
                  b=0):
         self.val = val
