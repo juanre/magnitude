@@ -339,7 +339,7 @@ def _numberp(n):  ## Python has to have a decent way to do this!
             isinstance(n, types.IntType) or
             isinstance(n, types.LongType))
 
-class Magnitude(object):
+class Magnitude():
     def __init__(self, val, m=0, s=0, K=0, kg=0, A=0, mol=0, cd=0, dollar=0,
                  b=0):
         self.val = val
@@ -573,6 +573,19 @@ class Magnitude(object):
         if self.out_factor.unit != self.unit:
             raise MagnitudeError("Inconsistent Magnitude units: %s, %s" % 
                                 (self.out_factor.unit, self.unit))
+        return self
+
+    def to_base_units(self):
+        """Forgets about the output unit and goes back to base units:
+
+        >>> a = mg(10, 'km')
+        >>> print a
+        10.0000 km
+        >>> print a.to_base_units()
+        10000.0000 m
+        """
+        self.out_unit = None
+        self.out_factor = None
         return self
 
     def output_prec(self, prec):
