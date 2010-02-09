@@ -17,7 +17,7 @@
 # language governing permissions and limitations under the
 # License.
 # 
-# Home page: http://juanreyero.com/magnitude/
+# Home page: http://juanreyero.com/open/magnitude/
 
 """
 A physical quantity is a number with a unit, like 10 km/h. Units can be any
