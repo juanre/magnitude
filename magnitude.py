@@ -357,8 +357,7 @@ class Magnitude():
         and output format are also copied. 
 
         >>> a = mg(1000/3., 'mm')
-        >>> a.output_prec(2)
-        >>> print a
+        >>> print a.output_prec(2)
         333.33 mm
         >>> print a.copy()
         0.3333 m
@@ -597,11 +596,11 @@ class Magnitude():
         >>> a = mg(5, 'm3') ** (1/3.)  # Careful with precedence of **
         >>> print a
         1.7100 m
-        >>> a.output_prec(1)
-        >>> print a
+        >>> print a.output_prec(1)
         1.7 m
         """
         self.oprec = prec
+        return self
 
     def output_format(self, oformat):
         """Set the output format for the Magnitude. 
@@ -613,11 +612,11 @@ class Magnitude():
         >>> a = mg(5, 'm2').sqrt()
         >>> print a
         2.2361 m
-        >>> a.output_format("%03d")
-        >>> print a
+        >>> print a.output_format("%03d")
         002 m
         """
         self.oformat = oformat
+        return self
 
     def __coerce__(self, m):
         """Force tuples or numbers into Magnitude."""
