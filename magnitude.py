@@ -983,6 +983,8 @@ def ensmg(m, unit=''):
     >>> print f.ounit('N')
     100.0000 N
     """
+    if m is None:
+        return None
     if not isinstance(m, Magnitude):
         if type(m) == tuple:
             if len(m) == 2:
