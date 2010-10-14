@@ -934,13 +934,19 @@ class Magnitude():
 # Some helper functions
 
 def mg(v, unit='', ounit=''):
-    """Builds a Magnitude from a number and a units string:
+    """Builds a Magnitude from a number and a units string.  Specify
+    the preferred output unit with ounit (by default equals to unit).
+    If ounit and unit have different dimensionalities unit will be
+    used.
 
     >>> print mg(10, 'm/s')
     10.0000 m/s
     >>> a = mg(10, 'm/s', 'km/h')
     >>> print a
     36.0000 km/h
+    >>> a = mg(10, 'm/s', 'kg/m')
+    >>> print a
+    10.0000 m/s
     >>> a = mg(1, 'B')
     >>> print a
     1.0000 B
@@ -956,10 +962,9 @@ def mg(v, unit='', ounit=''):
     if unit:
         u = m.sunit2mag(unit)
         m._mult_by(u)
-    if not ounit:
+    if not ounit or not mg(1, unit).has_dimension(ounit):
         ounit = unit
-    m.ounit(ounit)
-    return m
+    return m.ounit(ounit)
 
 def ensmg(m, unit=''):
     """Converts something to a Magnitude.
