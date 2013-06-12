@@ -1,4 +1,4 @@
-Copyright (C) 2009 Juan Reyero (http://juanreyero.com).
+Copyright (C) 2013 Juan Reyero (http://juanreyero.com).
 
 Licensed under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
@@ -21,15 +21,15 @@ About
   units:
 
   >>> print "10 m/s ** 2 ->", mg(10, 'm/s') ** 2
-  10 m/s ** 2 -> 100.0000 m2 / s2 
+  10 m/s ** 2 -> 100.0000 m2 / s2
   >>> print (mg(10, 'm') * 2 / (10, 'm/s2')).sqrt()
-  1.4142 s 
+  1.4142 s
   >>> tsq = mg(10, 'm') * 2 / (10, 'm/s2')
   >>> print tsq ** 0.5
-  1.4142 s 
+  1.4142 s
   >>> print mg(1, "lightyear") / mg(1, "c")
   >>> 31557600.0000 s
-  >>> y = mg(1, "lightyear") / (1, "c") 
+  >>> y = mg(1, "lightyear") / (1, "c")
   >>> y.ounit("year")
   <magnitude.magnitude instance at 0x81440>
   >>> print y

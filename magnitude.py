@@ -1,22 +1,22 @@
 # magnitude  -- a module for computing with numbers with units.
 #
-# Version 0.9.4, November 2009
+# Version 0.9.5, June 2013
 #
-# Copyright (C) 2006-2009 Juan Reyero (http://juanreyero.com).
-# 
+# Copyright (C) 2006-2013 Juan Reyero (http://juanreyero.com).
+#
 # Licensed under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied.  See the License for the specific
 # language governing permissions and limitations under the
 # License.
-# 
+#
 # Home page: http://juanreyero.com/open/magnitude/
 
 """
@@ -175,7 +175,7 @@ import types
 # Base magnitude names and prefixes.  The _mags dictionary, initialized
 # at the end, will contain all the known magnitudes.  Units are
 # 9-element arrays, each element the exponent of the unit named by the
-# Uname in the same position. 
+# Uname in the same position.
 
 class MagnitudeError(Exception):
     pass
@@ -230,13 +230,13 @@ def reset_default_format():
     """
     global _prn_format
     _prn_format = _default_prn_format
-    
+
 def default_format(fmt=None):
-    """Get or set the default ouptut format.  
+    """Get or set the default ouptut format.
 
     Include a fmt if and where you need to specify the output
     precision.  Defaults to %.*f, where the * stands for the
-    precision.  Do nothing if fmt is None. 
+    precision.  Do nothing if fmt is None.
 
     Returns: default format.
 
@@ -254,11 +254,11 @@ def default_format(fmt=None):
     return _prn_format
 
 def output_precision(prec=None):
-    """Get or set the output precision.  
+    """Get or set the output precision.
 
-    Package default is 4.  Do nothing is prec is None. 
+    Package default is 4.  Do nothing is prec is None.
 
-    Returns: default precision. 
+    Returns: default precision.
 
     >>> default_format("%.*f")
     '%.*f'
@@ -277,13 +277,13 @@ def output_precision(prec=None):
     return _prn_prec
 
 def output_units(un=None):
-    """Enable or disable the output of units when printing. 
+    """Enable or disable the output of units when printing.
 
     By default output of units is enabled.  Do nothing if un is None.
     When disabled (un is False) print of Magnitudes will produce only
     numbers.
 
-    Return: True if output of units enabled, False otherwise. 
+    Return: True if output of units enabled, False otherwise.
 
     >>> print mg(2, 'day')
     2.0000 day
@@ -311,7 +311,7 @@ def _isres(res):
     return (len(res) > 2) and (res[0] == '[') and (res[-1] == ']')
 
 def _res2m2(res):
-    """Convert resolution string to square meters. 
+    """Convert resolution string to square meters.
 
     Bracketed resolutions are used in the printing industry, to
     denote the area of a pixel.  Can be like [300x1200] or like [600]
@@ -321,9 +321,9 @@ def _res2m2(res):
     to square meters.
 
     >>> _res2m2("[600x600]")
-    1.7921111111111111e-09
+    1.792111111111111e-09
     >>> _res2m2("[600]")
-    1.7921111111111111e-09
+    1.792111111111111e-09
     >>> _res2m2("[150x300]")
     1.4336888888888889e-08
     """
@@ -350,11 +350,11 @@ class Magnitude():
         self.oformat = None
 
     def copy(self, with_format=False):
-        """Builds and returns a copy of a magnitude. 
+        """Builds and returns a copy of a magnitude.
 
         The copy includes value and units.  If with_format is set to
         True the default output unit, output factor, output precision
-        and output format are also copied. 
+        and output format are also copied.
 
         >>> a = mg(1000/3., 'mm')
         >>> print a.output_prec(2)
@@ -382,7 +382,7 @@ class Magnitude():
         >>> v.toval()
         100.0
         >>> v.toval(ounit='m/s')
-        27.777777777777779
+        27.77777777777778
         """
         m = self.copy()
         if not ounit:
@@ -414,7 +414,7 @@ class Magnitude():
             st = oformat % (oprec, self.val)
         else:
             st = oformat % (self.val)
-            
+
         if not _prn_units:
             return st
 
@@ -436,11 +436,11 @@ class Magnitude():
                 num += '1 '
             st += (num + '/ ' + den)
         elif num != ' ':
-            st += num        
+            st += num
         return st.strip()
 
     def term2mag(self, s):
-        """Converts a string with units to a Magnitude.  
+        """Converts a string with units to a Magnitude.
 
         Can't divide: use with the numerator and the denominator
         separately (hence the "term").  Returns the Magnitude that the
@@ -485,7 +485,7 @@ class Magnitude():
         return m
 
     def sunit2mag(self, unit=''):
-        """Convert a units string to a Magnitude. 
+        """Convert a units string to a Magnitude.
 
         Uses term2mag to convert a string with units, possibly
         including a / to separate a numerator and a denominator, to a
@@ -495,7 +495,7 @@ class Magnitude():
         >>> a.sunit2mag('m/s').toval()
         1.0
         >>> a.sunit2mag('km/h').toval()
-        0.27777777777777779
+        0.2777777777777778
         >>> print a.sunit2mag('W h')
         3600.0000 m2 kg / s2
         >>> print a.sunit2mag('W h').ounit('J')
@@ -515,7 +515,7 @@ class Magnitude():
         return m
 
     def dimensionless(self):
-        """True if the magnitude's dimension exponents are all zero. 
+        """True if the magnitude's dimension exponents are all zero.
 
         >>> mg(2, 'K').dimensionless()
         False
@@ -525,13 +525,13 @@ class Magnitude():
         return self.unit == [0] * 9
 
     def dimension(self):
-        """Return the dimension of the unit in internal (array) format. 
+        """Return the dimension of the unit in internal (array) format.
 
         >>> mg(2, 'J').dimension()
         [2, -2, 0, 1, 0, 0, 0, 0, 0]
         """
         return self.unit[:]
-    
+
     def has_dimension(self, u):
         """Returns true if the dimension of the magnitude matches u:
 
@@ -570,7 +570,7 @@ class Magnitude():
         self.out_unit = unit
         self.out_factor = self.sunit2mag(unit)
         if self.out_factor.unit != self.unit:
-            raise MagnitudeError("Inconsistent Magnitude units: %s, %s" % 
+            raise MagnitudeError("Inconsistent Magnitude units: %s, %s" %
                                 (self.out_factor.unit, self.unit))
         return self
 
@@ -603,7 +603,7 @@ class Magnitude():
         return self
 
     def output_format(self, oformat):
-        """Set the output format for the Magnitude. 
+        """Set the output format for the Magnitude.
 
         If not set, the module's default will be used, set and queried
         with default_format(fmt).  Default value is "%.*f".  The star
@@ -662,9 +662,9 @@ class Magnitude():
                                  (m.unit, self.unit))
         self.val += m.val
         return self
-    
+
     def __sub__(self, m):
-        """Substract Magnitude instances. 
+        """Substract Magnitude instances.
 
         >>> print mg(20, 'm/s') - (1, 'km/h')
         19.7222 m / s
@@ -719,6 +719,17 @@ class Magnitude():
         r._div_by(m)
         return r
 
+    def __truediv__(self, m):
+        """Divide Magnitude instances when "from __future__ import division"
+        is in effect.
+
+        >>> print mg(100, 'V') / (1, 'kohm')
+        0.1000 A
+        """
+        r = self.copy()
+        r._div_by(m)
+        return r
+
     def __rdiv__(self, m):
         """Divide Magnitude instances.  See __div__."""
         r = self.copy()
@@ -733,7 +744,7 @@ class Magnitude():
     def __mod__(self, n):
         """Modulus of a Magnitude by a number or a Magnitude.
 
-        Unit is that of the left hand side operator. 
+        Unit is that of the left hand side operator.
 
         >>> print mg(10, 'm/s') % 3
         1.0000 m / s
@@ -753,7 +764,7 @@ class Magnitude():
         return self
 
     def __floordiv__(self, m):
-        """Floordiv of two Magnitude instances. 
+        """Floordiv of two Magnitude instances.
 
         >>> print mg(10, 'm/s') // (3, 's')
         3.0000 m / s2
@@ -770,9 +781,9 @@ class Magnitude():
         self._div_by(m)
         self.val = math.floor(self.val)
         return self
-        
+
     def __divmod__(self, m):
-        """Floordiv and remainder of two Magnitude instances. 
+        """Floordiv and remainder of two Magnitude instances.
 
         >>> [ str(i) for i in divmod(mg(10, 'm/s'), (3, 's')) ]
         ['3.0000 m / s2', '1.0000 m / s']
@@ -784,7 +795,7 @@ class Magnitude():
         return (m.__floordiv__(self), m.__mod__(self))
 
     def __pow__(self, n, modulo=None):
-        """Return a Magnitude to the power n.  
+        """Return a Magnitude to the power n.
 
         If modulo is present return the result modulo it.
 
@@ -832,7 +843,7 @@ class Magnitude():
         return self.copy()
 
     def __abs__(self):
-        """Absolute value of a Magnitude. 
+        """Absolute value of a Magnitude.
 
         >>> print abs(mg(-10, 'm'))
         10.0000 m
@@ -889,7 +900,7 @@ class Magnitude():
         return r
 
     def floor(self):
-        """Floor of a Magnitude's value in canonical units. 
+        """Floor of a Magnitude's value in canonical units.
 
         >>> print mg(10.2, 'm/s').floor()
         10.0000 m / s
@@ -903,7 +914,7 @@ class Magnitude():
         return r
 
     def round(self):
-        """Round a Magnitude's value in canonical units. 
+        """Round a Magnitude's value in canonical units.
 
         >>> print mg(10.2, 'm/s').round()
         10.0000 m / s
@@ -921,7 +932,7 @@ class Magnitude():
                          b=1)
 
     def sqrt(self):
-        """Square root of a magnitude. 
+        """Square root of a magnitude.
 
         >>> print mg(4, 'm2/s2').sqrt()
         2.0000 m / s
@@ -929,8 +940,8 @@ class Magnitude():
         1.4142 m0.5 / s0.5
         """
         return self ** 0.5
-        
-    
+
+
 # Some helper functions
 
 def mg(v, unit='', ounit=''):
@@ -1056,7 +1067,7 @@ def _init_mags():
     new_mag('Hz', Magnitude(1.0, s=-1))  # hertz
     new_mag('g', Magnitude(1e-3, kg=1))  # gram
     new_mag('N', Magnitude(1.0, m=1, kg=1, s=-2))  # newton
-    new_mag('Pa', Magnitude(1.0, m=-1, kg=1, s=-2))  # pascal    
+    new_mag('Pa', Magnitude(1.0, m=-1, kg=1, s=-2))  # pascal
     new_mag('J', Magnitude(1.0, m=2, kg=1, s=-2))  # joule
     new_mag('W', Magnitude(1.0, m=2, kg=1, s=-3))  # watt
     new_mag('C', Magnitude(1.0, s=1, A=1))  # coulomb
@@ -1074,7 +1085,7 @@ def _init_mags():
     new_mag('Gy', Magnitude(1.0, m=2, s=-2))  # gray, J/kg, absorbed dose
     new_mag('Sv', Magnitude(1.0, m=2, s=-2))  # sievert, J/kg, dose equivalent
     new_mag('kat', Magnitude(1.0, s=-1, mol=1))  # katal, catalitic activity
-    
+
     ### Other
     # length
     new_mag("'", Magnitude(0.3048, m=1))  # feet
@@ -1092,7 +1103,7 @@ def _init_mags():
     # due to precession of the earth about its rotational axis
     # combined with precession of the perihelion of the earth's orbit"
     # (from units.dat).
-    new_mag('year', Magnitude(31556925.974678401, s=1)) 
+    new_mag('year', Magnitude(31556925.974678401, s=1))
     new_mag('day', Magnitude(86400, s=1))
     new_mag('h', Magnitude(3600, s=1))
     new_mag('min', Magnitude(60, s=1))
