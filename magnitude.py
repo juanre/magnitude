@@ -736,7 +736,18 @@ class Magnitude():
         m._div_by(r)
         return m
 
+    def __rtruediv__(self, m):
+        """Divide Magnitude instances.  See __div__."""
+        r = self.copy()
+        m._div_by(r)
+        return m
+
     def __idiv__(self, m):
+        """Divide Magnitude instances.  See __div__."""
+        self._div_by(m)
+        return self
+
+    def __itruediv__(self, m):
         """Divide Magnitude instances.  See __div__."""
         self._div_by(m)
         return self
