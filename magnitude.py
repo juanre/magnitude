@@ -330,6 +330,24 @@ def _res2m2(res):
     hr, vr = _res2num(res)
     return 0.0254 * 0.0254 / (vr * hr)
 
+###### Pitch
+
+def _ispitch(res):
+    return (len(res) > 2) and (res[0] == '-') and (res[-1] == '-')
+
+def _pitch2m(res):
+    """Convert pitch string to meters.
+
+    Something like -600- is assumed to mean "six-hundreths of an inch".
+
+    >>> _pitch2m("-600-")
+    1.792111111111111e-09
+    >>> _pitch2m("-1200-")
+    1.792111111111111e-09
+    """
+    res = int(res[1:-1])
+    return 0.0254 / res
+
 
 # Definition of the magnitude type.  Includes operator overloads.
 
@@ -476,6 +494,8 @@ class Magnitude():
                     u = _mags[u[1:]].copy();  u.val = pr * u.val
                 elif _isres(u):
                     u = Magnitude(_res2m2(u), m=2)
+                elif _ispitch(u):
+                    u = Magnitude(_pitch2m(u), m=1)
                 elif u == '':
                     u = Magnitude(1.0)
                 else:
@@ -1129,6 +1149,9 @@ def _init_mags():
 
     # Acceleration
     new_mag('gravity', Magnitude(9.80665, m=1, s=-2))
+
+    # Coverage
+    new_mag('gsm', Magnitude(0.001, kg=1, m=-2))
 
 
 if not _mags:
