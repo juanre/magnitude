@@ -13,6 +13,7 @@ clean:
 
 realclean:	clean
 	sudo rm -rf dist
+	sudo rm -rf *.egg-info
 	rm -f MANIFEST
 	find . -name __pycache__ | xargs rm -rf
 	rm -rf .cache
