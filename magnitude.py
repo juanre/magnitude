@@ -2,7 +2,7 @@
 #
 # Version 0.9.5, June 2013
 #
-# Copyright (C) 2006-2013 Juan Reyero (http://juanreyero.com).
+# Copyright (C) 2006-2015 Juan Reyero (http://juanreyero.com).
 #
 # Licensed under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
@@ -169,13 +169,15 @@ arises I'll implement ad-hoc esupport for dB, but for the time being
 there is none.
 """
 
-import re, math
+import re
+import math
 import types
 
 # Base magnitude names and prefixes.  The _mags dictionary, initialized
 # at the end, will contain all the known magnitudes.  Units are
 # 9-element arrays, each element the exponent of the unit named by the
 # Uname in the same position.
+
 
 class MagnitudeError(Exception):
     pass
@@ -206,21 +208,22 @@ _prefix = {'y': 1e-24,  # yocto
            # 1000 bytes; for 1024 bytes use Kib (note the capital K in
            # the binary version, and the lower case for the b of byte,
            # see comment in byte definition below).
-           'Ki': 2 ** 10, # Kibi (<- kilo, 10^3)
-           'Mi': 2 ** 20, # Mebi (<- mega, 10^6)
-           'Gi': 2 ** 30, # Gibi (<- giga, 10^9)
-           'Ti': 2 ** 40, # Tebi (<- tera, 10^12)
-           'Pi': 2 ** 50, # Pebi (<- peta, 10^15)
-           'Ei': 2 ** 60  # Exbi (<- exa, 10^18)
+           'Ki': 2 ** 10,  # Kibi (<- kilo, 10^3)
+           'Mi': 2 ** 20,  # Mebi (<- mega, 10^6)
+           'Gi': 2 ** 30,  # Gibi (<- giga, 10^9)
+           'Ti': 2 ** 40,  # Tebi (<- tera, 10^12)
+           'Pi': 2 ** 50,  # Pebi (<- peta, 10^15)
+           'Ei': 2 ** 60   # Exbi (<- exa, 10^18)
            }
 
 
-###### Default print formatting options
+# Default print formatting options
 
 _default_prn_format = "%.*f"
 _prn_format = _default_prn_format
 _prn_prec = 4
 _prn_units = True
+
 
 def reset_default_format():
     """Resets the default output format.
@@ -230,6 +233,7 @@ def reset_default_format():
     """
     global _prn_format
     _prn_format = _default_prn_format
+
 
 def default_format(fmt=None):
     """Get or set the default ouptut format.
@@ -252,6 +256,7 @@ def default_format(fmt=None):
     if fmt is not None:
         _prn_format = fmt
     return _prn_format
+
 
 def output_precision(prec=None):
     """Get or set the output precision.
@@ -276,6 +281,7 @@ def output_precision(prec=None):
         _prn_prec = prec
     return _prn_prec
 
+
 def output_units(un=None):
     """Enable or disable the output of units when printing.
 
@@ -298,7 +304,7 @@ def output_units(un=None):
     return _prn_units
 
 
-###### Resolution areas
+# Resolution areas
 
 def _res2num(res):
     match = re.search(r'(\d+)x(\d+)', res)
@@ -307,8 +313,10 @@ def _res2num(res):
     if (res[0] == '[') and (res[-1] == ']'):
         return (int(res[1:-1]), int(res[1:-1]))
 
+
 def _isres(res):
     return (len(res) > 2) and (res[0] == '[') and (res[-1] == ']')
+
 
 def _res2m2(res):
     """Convert resolution string to square meters.
@@ -330,10 +338,12 @@ def _res2m2(res):
     hr, vr = _res2num(res)
     return 0.0254 * 0.0254 / (vr * hr)
 
-###### Pitch
+
+# Pitch
 
 def _ispitch(res):
     return (len(res) > 2) and (res[0] == '-') and (res[-1] == '-')
+
 
 def _pitch2m(res):
     """Convert pitch string to meters.
@@ -341,21 +351,20 @@ def _pitch2m(res):
     Something like -600- is assumed to mean "six-hundreths of an inch".
 
     >>> _pitch2m("-600-")
-    1.792111111111111e-09
+    4.233333333333333e-05
     >>> _pitch2m("-1200-")
-    1.792111111111111e-09
+    2.1166666666666665e-05
     """
     res = int(res[1:-1])
     return 0.0254 / res
 
 
-# Definition of the magnitude type.  Includes operator overloads.
-
-def _numberp(n):  ## Python has to have a decent way to do this!
+def _numberp(n):  # Python has to have a decent way to do this!
     return (isinstance(n, types.ComplexType) or
             isinstance(n, types.FloatType) or
             isinstance(n, types.IntType) or
             isinstance(n, types.LongType))
+
 
 class Magnitude():
     def __init__(self, val, m=0, s=0, K=0, kg=0, A=0, mol=0, cd=0, dollar=0,
@@ -482,16 +491,17 @@ class Magnitude():
                 if re.search(r'\d$', u):
                     exp = int(u[-1])
                     u = u[0:-1]
-                if _mags.has_key(u):
+                if u in _mags:
                     u = _mags[u].copy()
-                elif ((len(u)>=3) and _prefix.has_key(u[0:2]) and
-                      _mags.has_key(u[2:])):
+                elif ((len(u) >= 3) and u[0:2] in _prefix and
+                      u[2:] in _mags):
                     pr = _prefix[u[0:2]]
-                    u = _mags[u[2:]].copy();  u.val = pr * u.val
-                elif ((len(u)>=2) and _prefix.has_key(u[0]) and
-                      _mags.has_key(u[1:])):
+                    u = _mags[u[2:]].copy()
+                    u.val = pr * u.val
+                elif ((len(u) >= 2) and u[0] in _prefix and u[1:] in _mags):
                     pr = _prefix[u[0]]
-                    u = _mags[u[1:]].copy();  u.val = pr * u.val
+                    u = _mags[u[1:]].copy()
+                    u.val = pr * u.val
                 elif _isres(u):
                     u = Magnitude(_res2m2(u), m=2)
                 elif _ispitch(u):
@@ -591,7 +601,7 @@ class Magnitude():
         self.out_factor = self.sunit2mag(unit)
         if self.out_factor.unit != self.unit:
             raise MagnitudeError("Inconsistent Magnitude units: %s, %s" %
-                                (self.out_factor.unit, self.unit))
+                                 (self.out_factor.unit, self.unit))
         return self
 
     def to_base_units(self):
@@ -822,7 +832,9 @@ class Magnitude():
         return (self.__floordiv__(m), self.__mod__(m))
 
     def __rdivmod__(self, m):
-        """Floordiv and remainder of two Magnitude instances. See __divmod___"""
+        """Floordiv and remainder of two Magnitude instances.
+        See __divmod___.
+        """
         return (m.__floordiv__(self), m.__mod__(self))
 
     def __pow__(self, n, modulo=None):
@@ -892,8 +904,8 @@ class Magnitude():
         True
         """
         if m.unit != self.unit:
-            raise MagnitudeError("Incompatible units in comparison: %s and %s" %
-                                 (m.unit, self.unit))
+            raise MagnitudeError("Incompatible units in comparison: %s and %s"
+                                 % (m.unit, self.unit))
         return cmp(self.val, m.val)
 
     def __int__(self):
@@ -1008,6 +1020,7 @@ def mg(v, unit='', ounit=''):
         ounit = unit
     return m.ounit(ounit)
 
+
 def ensmg(m, unit=''):
     """Converts something to a Magnitude.
 
@@ -1046,23 +1059,25 @@ def ensmg(m, unit=''):
     else:
         return m
 
-# These don't really help much, as it's much easier to use the
-# overriden * and / operators.
 
 def __mul(m1, *rest):
     m = ensmg(m1)
-    for m2 in rest:  m._mult_by(ensmg(m2))
+    for m2 in rest:
+        m._mult_by(ensmg(m2))
     return m
+
 
 def __div(m1, *rest):
     if rest:
         m = ensmg(m1)
-        for m2 in rest:  m._div_by(ensmg(m2))
+        for m2 in rest:
+            m._div_by(ensmg(m2))
         return m
     else:
         m = Magnitude(1.0)
         m._div_by(ensmg(m1))
         return m
+
 
 def new_mag(indicator, mag):
     """Define a new magnitude understood by the package.
@@ -1075,6 +1090,7 @@ def new_mag(indicator, mag):
     160.9344 km/h
     """
     _mags[indicator] = mag
+
 
 # Finally, define the Magnitudes and initialize _mags.
 
@@ -1105,9 +1121,12 @@ def _init_mags():
     new_mag('V', Magnitude(1.0, m=2, kg=1, s=-3, A=-1))  # volt
     new_mag('F', Magnitude(1.0, m=-2, kg=-1, s=4, A=2))  # farad, C/V
     new_mag('ohm', Magnitude(1.0, m=2, kg=1, s=-3, A=-2))  # ohm, V/A
-    new_mag('S', Magnitude(1.0, m=-2, kg=-1, s=3, A=2))  # siemens, A/V, el cond
-    new_mag('Wb', Magnitude(1.0, m=2, kg=1, s=-2, A=-1))  # weber, V.s, mag flux
-    new_mag('T', Magnitude(1.0, kg=1, s=-2, A=-1))  # tesla, Wb/m2, mg flux dens
+    new_mag('S', Magnitude(1.0, m=-2, kg=-1,
+                           s=3, A=2))  # siemens, A/V, el cond
+    new_mag('Wb', Magnitude(1.0, m=2, kg=1,
+                            s=-2, A=-1))  # weber, V.s, mag flux
+    new_mag('T', Magnitude(1.0, kg=1,
+                           s=-2, A=-1))  # tesla, Wb/m2, mg flux dens
     new_mag('H', Magnitude(1.0, m=2, kg=1, s=-2, A=-2))  # henry, Wb/A, induct.
     new_mag('degC', Magnitude(1.0, K=1))  # celsius, !!
     new_mag('lm', Magnitude(1.0, cd=1))  # lumen, cd.sr (=cd)), luminous flux
@@ -1117,7 +1136,6 @@ def _init_mags():
     new_mag('Sv', Magnitude(1.0, m=2, s=-2))  # sievert, J/kg, dose equivalent
     new_mag('kat', Magnitude(1.0, s=-1, mol=1))  # katal, catalitic activity
 
-    ### Other
     # length
     new_mag("'", Magnitude(0.3048, m=1))  # feet
     new_mag('ft', Magnitude(0.3048, m=1))  # feet

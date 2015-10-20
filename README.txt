@@ -1,4 +1,4 @@
-Copyright (C) 2013 Juan Reyero (http://juanreyero.com).
+Copyright (C) 2006-2015 Juan Reyero (http://juanreyero.com).
 
 Licensed under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
@@ -15,10 +15,10 @@ License.
 
 Home page: http://juanreyero.com/open/magnitude/
 
-About
+About:
 
-  Magnitude is a library for computing with numbers with
-  units:
+Magnitude is a library for computing with numbers with
+units::
 
   >>> print "10 m/s ** 2 ->", mg(10, 'm/s') ** 2
   10 m/s ** 2 -> 100.0000 m2 / s2
