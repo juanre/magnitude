@@ -121,7 +121,7 @@ Exported symbols
 - Magnitude [class] --- Numbers with units; math operations are overloaded
 - mg(number, unit, ounit='') --- Construct a Magnitude
 - ensmg(m, unit='') --- Tries to build a Magnitude out of something
-- newmag(indicator, mag) --- Intern a new magnitude with its name
+- new_mag(indicator, mag) --- Intern a new magnitude with its name
 - MagnitudeError [class] --- Magnitude error handling
 
 
