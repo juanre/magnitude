@@ -9,7 +9,7 @@ with open("README", "r") as fp:
 
 
 setup(name='magnitude',
-      version='0.9.4',
+      version='1.0.0',
       description='Python library for computing with numbers with units',
       long_description=long_description,
       author='Juan Reyero',
@@ -17,8 +17,8 @@ setup(name='magnitude',
       url='http://juanreyero.com/open/magnitude/',
       py_modules=['magnitude'],
       classifiers=[
-          "Programming Language :: Python :: 2",
-          #"Programming Language :: Python :: 3",
+          # "Programming Language :: Python :: 2",
+          "Programming Language :: Python :: 3",
           "Intended Audience :: Developers",
           "Intended Audience :: Science/Research",
           "License :: OSI Approved :: Apache Software License",
