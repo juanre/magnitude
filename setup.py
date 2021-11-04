@@ -9,7 +9,7 @@ with open("README", "r") as fp:
 
 
 setup(name='magnitude',
-      version='1.0.0',
+      version='1.0.1',
       description='Python library for computing with numbers with units',
       long_description=long_description,
       author='Juan Reyero',

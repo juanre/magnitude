@@ -665,11 +665,11 @@ class Magnitude():
                 r._mult_by(self.sunit2mag(m[1]))
                 return r
             elif len(m) == 1:
-                return Magnitude(m[0], *self.unit)
+                return Magnitude(m[0])
             else:
                 return None
         elif _numberp(m):
-            return Magnitude(m, *self.unit)
+            return Magnitude(m)
         else:
             return None
 

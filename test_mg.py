@@ -86,6 +86,10 @@ def test_comp():
     assert not mg(1, 'm/s') > mg(2, 'm/s')
 
 
+def test_scalar():
+    assert (2*mg(10, 'm/s')) == mg(20, 'm/s')
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
