@@ -172,12 +172,12 @@ there is none.
 import re
 import math
 import numbers
-
-
 # Base magnitude names and prefixes.  The _mags dictionary, initialized
 # at the end, will contain all the known magnitudes.  Units are
 # 9-element arrays, each element the exponent of the unit named by the
 # Uname in the same position.
+
+
 class MagnitudeError(Exception):
     pass
 
@@ -217,7 +217,7 @@ _prefix = {'y': 1e-24,  # yocto
            }
 
 
-###### Default print formatting options
+# Default print formatting options
 
 _default_prn_format = "%.*f"
 _prn_format = _default_prn_format
@@ -304,7 +304,7 @@ def output_units(un=None):
     return _prn_units
 
 
-###### Resolution areas
+# Resolution areas
 
 def _res2num(res):
     match = re.search(r'(\d+)x(\d+)', res)
@@ -339,7 +339,7 @@ def _res2m2(res):
     return 0.0254 * 0.0254 / (vr * hr)
 
 
-###### Pitch
+# Pitch
 
 def _ispitch(res):
     return (len(res) > 2) and (res[0] == '-') and (res[-1] == '-')
@@ -501,8 +501,7 @@ class Magnitude():
                     pr = _prefix[u[0:2]]
                     u = _mags[u[2:]].copy()
                     u.val = pr * u.val
-                elif ((len(u) >= 2) and u[0] in _prefix and
-                      u[1:] in _mags):
+                elif ((len(u) >= 2) and u[0] in _prefix and u[1:] in _mags):
                     pr = _prefix[u[0]]
                     u = _mags[u[1:]].copy()
                     u.val = pr * u.val
@@ -842,7 +841,8 @@ class Magnitude():
         return (self.__floordiv__(m), self.__mod__(m))
 
     def __rdivmod__(self, m):
-        """Floordiv and remainder of two Magnitude instances. See __divmod___
+        """Floordiv and remainder of two Magnitude instances.
+        See __divmod___.
         """
         return (m.__floordiv__(self), m.__mod__(self))
 
@@ -1193,9 +1193,12 @@ def _init_mags():
     new_mag('V', Magnitude(1.0, m=2, kg=1, s=-3, A=-1))  # volt
     new_mag('F', Magnitude(1.0, m=-2, kg=-1, s=4, A=2))  # farad, C/V
     new_mag('ohm', Magnitude(1.0, m=2, kg=1, s=-3, A=-2))  # ohm, V/A
-    new_mag('S', Magnitude(1.0, m=-2, kg=-1, s=3, A=2))  # siemens, A/V, el cond
-    new_mag('Wb', Magnitude(1.0, m=2, kg=1, s=-2, A=-1))  # weber, V.s, mag flux
-    new_mag('T', Magnitude(1.0, kg=1, s=-2, A=-1))  # tesla, Wb/m2, mg flux dens
+    new_mag('S', Magnitude(1.0, m=-2, kg=-1,
+                           s=3, A=2))  # siemens, A/V, el cond
+    new_mag('Wb', Magnitude(1.0, m=2, kg=1,
+                            s=-2, A=-1))  # weber, V.s, mag flux
+    new_mag('T', Magnitude(1.0, kg=1,
+                           s=-2, A=-1))  # tesla, Wb/m2, mg flux dens
     new_mag('H', Magnitude(1.0, m=2, kg=1, s=-2, A=-2))  # henry, Wb/A, induct.
     new_mag('degC', Magnitude(1.0, K=1))  # celsius, !!
     new_mag('lm', Magnitude(1.0, cd=1))  # lumen, cd.sr (=cd)), luminous flux
@@ -1205,7 +1208,6 @@ def _init_mags():
     new_mag('Sv', Magnitude(1.0, m=2, s=-2))  # sievert, J/kg, dose equivalent
     new_mag('kat', Magnitude(1.0, s=-1, mol=1))  # katal, catalitic activity
 
-    ### Other
     # length
     new_mag("'", Magnitude(0.3048, m=1))  # feet
     new_mag('ft', Magnitude(0.3048, m=1))  # feet
