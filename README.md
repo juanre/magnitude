@@ -4,11 +4,15 @@ A Python library for computing with numbers with units.
 
 ## About
 
-A physical quantity is a number with a unit, like 10 km/h. Units can be any of the SI units, plus a bunch of non-SI, bits, dollars, and any combination of them. They can include the standard SI prefixes. Magnitude can operate with physical quantities, parse their units, and print them. You don't have to worry about unit consistency or conversions; everything is handled transparently. By default output is done in basic SI units, but you can specify any output unit, as long as it can be reduced to the basic units of the physical quantity.
+A magnitude is a number with a unit, like 10 km/h. Units can be any of the SI units, plus a bunch of non-SI, bits, dollars, and any combination of them. They can include the standard SI prefixes. Magnitude can operate with physical quantities, parse their units, and print them. You don't have to worry about unit consistency or conversions; everything is handled transparently. By default output is done in basic SI units, but you can specify any output unit, as long as it can be reduced to the basic units of the physical quantity.
 
 ## Installation
 
 ```bash
+uv add magnitude # recommended
+
+# or with pip
+
 pip install magnitude
 ```
 
@@ -23,19 +27,22 @@ print("10 m/s ** 2 ->", mg(10, 'm/s') ** 2)
 
 # Unit conversions
 speed = mg(10, 'm/s', 'km/h')
-print(speed)
+speed
 # 36.0000 km/h
 
 # Dimensional analysis
 time_squared = mg(10, 'm') * 2 / (10, 'm/s2')
-print(time_squared ** 0.5)
+time_squared
+# 2.0000 s2
+back_to_time = time_squared ** 0.5
+back_to_time
 # 1.4142 s
 
 # Natural constants
 year = mg(1, "lightyear") / (1, "c")
-print(year.ounit("year"))
+year.ounit("year")
 # 1.0000 year
-print(year.ounit('day'))
+year.ounit('day')
 # 365.2500 day
 ```
 
