@@ -1,6 +1,6 @@
 [project]
 name = "magnitude"
-version = "1.1.0"
+version = "1.1.1"
 description = "Python library for computing with numbers with units"
 readme = "README.md"
 authors = [
