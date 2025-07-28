@@ -1,0 +1,17 @@
+[project]
+name = "magnitude"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Juan Reyero", email = "juan@juanreyero.com" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+magnitude = "magnitude:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
