@@ -10,3 +10,5 @@ TAGS
 .cache
 __pycache__
 .env
+.coverage
+htmlcov/
