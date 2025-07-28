@@ -1,5 +1,7 @@
 """Test Unicode superscript support for Magnitude."""
 
+import os
+
 import pytest
 
 from magnitude import UnitError, _parse_superscript, _to_superscript, mg, unicode_superscript
@@ -105,6 +107,48 @@ def test_edge_cases():
     # Mixed Unicode in unit name should fail
     with pytest.raises(UnitError):
         mg(10, "m²eters")  # Invalid unit
+
+
+def test_environment_variable():
+    """Test that MAGNITUDE_UNICODE_SUPERSCRIPTS environment variable works."""
+    # Store original values
+    original_env = os.environ.get("MAGNITUDE_UNICODE_SUPERSCRIPTS")
+
+    # Need to reload the module to pick up environment changes
+    import importlib
+
+    import magnitude
+
+    try:
+        # Test various truthy values
+        for value in ["1", "true", "True", "TRUE", "yes", "YES", "on", "ON"]:
+            os.environ["MAGNITUDE_UNICODE_SUPERSCRIPTS"] = value
+            importlib.reload(magnitude)
+            # The default should now be True
+            assert magnitude._unicode_superscript is True
+
+        # Test various falsy values
+        for value in ["0", "false", "False", "no", "off", ""]:
+            os.environ["MAGNITUDE_UNICODE_SUPERSCRIPTS"] = value
+            importlib.reload(magnitude)
+            # The default should now be False
+            assert magnitude._unicode_superscript is False
+
+        # Test unset
+        if "MAGNITUDE_UNICODE_SUPERSCRIPTS" in os.environ:
+            del os.environ["MAGNITUDE_UNICODE_SUPERSCRIPTS"]
+        importlib.reload(magnitude)
+        # The default should be False
+        assert magnitude._unicode_superscript is False
+
+    finally:
+        # Restore original value
+        if original_env is not None:
+            os.environ["MAGNITUDE_UNICODE_SUPERSCRIPTS"] = original_env
+        elif "MAGNITUDE_UNICODE_SUPERSCRIPTS" in os.environ:
+            del os.environ["MAGNITUDE_UNICODE_SUPERSCRIPTS"]
+        # Reload to restore original state
+        importlib.reload(magnitude)
 
 
 if __name__ == "__main__":

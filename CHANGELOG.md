@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Input parsing accepts Unicode superscripts (e.g., `mg(10, 'm²/s²')`)
   - Output formatting can display Unicode superscripts when enabled via `unicode_superscript(True)`
   - Supports negative exponents (e.g., `s⁻¹`) and multi-digit exponents (e.g., `kg¹²`)
+  - Environment variable `MAGNITUDE_UNICODE_SUPERSCRIPTS` can be set to '1', 'true', 'yes', or 'on' to enable by default
 - Modern development tooling:
   - Pre-commit hooks with isort, black, ruff, and mypy
   - Pytest configuration to run both unit tests and doctests

@@ -53,6 +53,7 @@ year.ounit('day')
 - Support for derived units (joules, watts, etc.)
 - Binary prefixes (Ki, Mi, Gi, etc.)
 - Currency units
+- Unicode superscript support for unit notation (m², s⁻¹, etc.)
 - Extensible - add your own units
 - Pure Python, no dependencies
 
@@ -143,6 +144,56 @@ Any unit can be augmented with these scale prefixes:
 - `Ti` - Tebi (2⁴⁰)
 - `Pi` - Pebi (2⁵⁰)
 - `Ei` - Exbi (2⁶⁰)
+
+## Unicode Superscripts
+
+Magnitude supports Unicode superscripts for both input and output of units:
+
+### Input
+You can use Unicode superscripts when creating magnitudes:
+
+```python
+from magnitude import mg
+
+# These are equivalent
+area1 = mg(10, 'm²')
+area2 = mg(10, 'm2')
+
+# Works with negative exponents too
+frequency = mg(440, 's⁻¹')  # Same as mg(440, 's-1') or mg(440, 'Hz')
+
+# And multi-digit exponents
+special = mg(1, 'kg¹²')  # Same as mg(1, 'kg12')
+```
+
+### Output
+By default, output uses regular ASCII notation. You can enable Unicode superscripts:
+
+```python
+from magnitude import mg, unicode_superscript
+
+m = mg(10, 'm2/s2')
+print(m)  # 10.0000 m2/s2
+
+# Enable Unicode superscripts
+unicode_superscript(True)
+print(m)  # 10.0000 m²/s²
+
+# Works with all units
+print(mg(1, 'kg') / mg(1, 'm3'))  # 1.0000 kg / m³
+```
+
+### Environment Variable
+You can set the default behavior using the `MAGNITUDE_UNICODE_SUPERSCRIPTS` environment variable:
+
+```bash
+# Enable Unicode superscripts by default
+export MAGNITUDE_UNICODE_SUPERSCRIPTS=1  # or 'true', 'yes', 'on'
+
+# In Python
+from magnitude import mg
+print(mg(10, 'm2'))  # Will print: 10.0000 m²
+```
 
 ## Defining New Magnitudes
 

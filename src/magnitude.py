@@ -10,6 +10,7 @@
 
 import math
 import numbers
+import os
 import re
 from typing import Any, Optional, Union
 
@@ -108,7 +109,10 @@ _default_prn_format = "%.*f"
 _prn_format = _default_prn_format
 _prn_prec = 4
 _prn_units = True
-_unicode_superscript = False  # Whether to use Unicode superscripts in output
+# Check environment variable for Unicode superscripts default
+# Can be set to '1', 'true', 'yes', or 'on' (case-insensitive) to enable
+_env_unicode = os.environ.get("MAGNITUDE_UNICODE_SUPERSCRIPTS", "").lower()
+_unicode_superscript = _env_unicode in ("1", "true", "yes", "on")
 
 
 def _parse_superscript(s: str) -> Optional[int]:
@@ -241,10 +245,22 @@ def output_units(un: Optional[bool] = None) -> bool:
 def unicode_superscript(enable: Optional[bool] = None) -> bool:
     """Enable or disable Unicode superscripts in output.
 
-    By default Unicode superscripts are disabled. Do nothing if enable is None.
+    By default Unicode superscripts are disabled unless the environment variable
+    MAGNITUDE_UNICODE_SUPERSCRIPTS is set to '1', 'true', 'yes', or 'on'.
+    Do nothing if enable is None.
+
     When enabled, output will use ² instead of 2 for exponents.
 
-    Return: True if Unicode superscripts enabled, False otherwise.
+    Args:
+        enable: True to enable Unicode superscripts, False to disable,
+                None to query current setting
+
+    Returns:
+        bool: True if Unicode superscripts enabled, False otherwise
+
+    Environment:
+        MAGNITUDE_UNICODE_SUPERSCRIPTS: Set to '1', 'true', 'yes', or 'on'
+                                       to enable Unicode superscripts by default
 
     >>> output_units(True)  # Re-enable unit output
     True
