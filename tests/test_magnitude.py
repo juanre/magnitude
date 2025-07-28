@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+import pytest
+
+import magnitude
 from magnitude import Magnitude, mg, new_mag
 
 
@@ -88,6 +91,56 @@ def test_comp():
 
 def test_scalar():
     assert (2 * mg(10, "m/s")) == mg(20, "m/s")
+
+
+def test_coerce_edge_cases():
+    """Test edge cases in coerce method."""
+    m = mg(1, "m")
+
+    # Test single-element tuple
+    result = m.coerce((5.0,))
+    assert result.val == 5.0
+    assert result.dimensionless()
+
+    # Test invalid tuple length
+    with pytest.raises(magnitude.ConversionError) as exc_info:
+        m.coerce((1, 2, 3))
+    assert "Cannot coerce tuple of length 3" in str(exc_info.value)
+
+    # Test non-numeric type
+    with pytest.raises(magnitude.ConversionError) as exc_info:
+        m.coerce("string")
+    assert "Cannot coerce str to Magnitude" in str(exc_info.value)
+
+
+def test_resolution_parsing_error():
+    """Test error case in resolution parsing."""
+    # Test invalid resolution string
+    with pytest.raises(magnitude.ConversionError) as exc_info:
+        magnitude._parse_resolution_dimensions("invalid_resolution")
+    assert "Cannot parse resolution string" in str(exc_info.value)
+
+
+def test_ensmg_edge_cases():
+    """Test edge cases in ensmg function."""
+    # Test single-element tuple with unit
+    result = magnitude.ensmg((5.0,), "m")
+    assert result == mg(5.0, "m")
+
+    # Test single-element tuple without unit
+    result = magnitude.ensmg((5.0,))
+    assert result.val == 5.0
+    assert result.dimensionless()
+
+    # Test invalid tuple length
+    with pytest.raises(magnitude.ConversionError) as exc_info:
+        magnitude.ensmg((1, 2, 3))
+    assert "Can't convert (1, 2, 3) to Magnitude" in str(exc_info.value)
+
+    # Test non-convertible type
+    with pytest.raises(magnitude.ConversionError) as exc_info:
+        magnitude.ensmg("not a number")
+    assert "Can't convert" in str(exc_info.value)
 
 
 if __name__ == "__main__":
