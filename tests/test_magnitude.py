@@ -60,6 +60,9 @@ def test_arithmetic():
     assert float(mg(10.9, "m/s")) == 10.9
     assert int(mg(10.9, "m/s")) == 10
 
+    assert mg(10, "s-12 / m-12") / mg(0.5, "m") == mg(20, "m11 /s12")
+    assert mg(10, "s-12 / m-12 cd2") / mg(0.5, "m") == mg(20, "m11 cd-2/s12")
+
 
 def test_selfmod():
     m = mg(10, "m/s")
