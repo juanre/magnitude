@@ -51,6 +51,24 @@ class ConversionError(MagnitudeError):
 
 _mags: dict[str, "Magnitude"] = {}
 _unames: list[str] = ["m", "s", "K", "kg", "A", "mol", "cd", "$", "b"]
+
+# Unicode superscript mappings
+_superscript_map: dict[str, str] = {
+    "⁰": "0",
+    "¹": "1",
+    "²": "2",
+    "³": "3",
+    "⁴": "4",
+    "⁵": "5",
+    "⁶": "6",
+    "⁷": "7",
+    "⁸": "8",
+    "⁹": "9",
+    "⁻": "-",
+    "⁺": "+",
+}
+_digit_to_superscript: dict[str, str] = {v: k for k, v in _superscript_map.items() if v.isdigit()}
+
 _prefix: dict[str, float] = {
     "y": 1e-24,  # yocto
     "z": 1e-21,  # zepto
@@ -90,6 +108,55 @@ _default_prn_format = "%.*f"
 _prn_format = _default_prn_format
 _prn_prec = 4
 _prn_units = True
+_unicode_superscript = False  # Whether to use Unicode superscripts in output
+
+
+def _parse_superscript(s: str) -> Optional[int]:
+    """Convert Unicode superscript string to integer.
+
+    >>> _parse_superscript('²')
+    2
+    >>> _parse_superscript('¹²')
+    12
+    >>> _parse_superscript('⁻¹')
+    -1
+    >>> _parse_superscript('¹⁰⁰')
+    100
+    """
+    result = ""
+    for char in s:
+        if char in _superscript_map:
+            result += _superscript_map[char]
+        else:
+            return None  # Invalid superscript
+    try:
+        return int(result) if result else None
+    except ValueError:
+        return None
+
+
+def _to_superscript(n: int) -> str:
+    """Convert integer to Unicode superscript string.
+
+    >>> _to_superscript(2)
+    '²'
+    >>> _to_superscript(12)
+    '¹²'
+    >>> _to_superscript(-1)
+    '⁻¹'
+    """
+    if n == 0:
+        return "⁰"
+
+    result = ""
+    if n < 0:
+        result = "⁻"
+        n = -n
+
+    for digit in str(n):
+        result += _digit_to_superscript[digit]
+
+    return result
 
 
 def reset_default_format() -> None:
@@ -169,6 +236,31 @@ def output_units(un: Optional[bool] = None) -> bool:
     if un is not None:
         _prn_units = un
     return _prn_units
+
+
+def unicode_superscript(enable: Optional[bool] = None) -> bool:
+    """Enable or disable Unicode superscripts in output.
+
+    By default Unicode superscripts are disabled. Do nothing if enable is None.
+    When enabled, output will use ² instead of 2 for exponents.
+
+    Return: True if Unicode superscripts enabled, False otherwise.
+
+    >>> output_units(True)  # Re-enable unit output
+    True
+    >>> print(mg(10, 'm2/s2'))
+    10.0000 m2/s2
+    >>> unicode_superscript(True)
+    True
+    >>> print(mg(10, 'm2/s2'))
+    10.0000 m²/s²
+    >>> unicode_superscript(False)
+    False
+    """
+    global _unicode_superscript
+    if enable is not None:
+        _unicode_superscript = enable
+    return _unicode_superscript
 
 
 def _parse_resolution_dimensions(resolution_str: str) -> tuple[int, int]:
@@ -386,7 +478,24 @@ class Magnitude:
             else:
                 st = oformat % (m.val)
             if _prn_units:
-                return st + " " + self.out_unit.strip()
+                out_unit_str = self.out_unit.strip()
+                if _unicode_superscript:
+                    # Convert digits in the output unit to Unicode superscripts
+                    import re
+
+                    # Handle positive exponents (e.g., m2 -> m²)
+                    out_unit_str = re.sub(
+                        r"(\w)(\d+)",
+                        lambda m: m.group(1) + _to_superscript(int(m.group(2))),
+                        out_unit_str,
+                    )
+                    # Handle negative exponents (e.g., s-1 -> s⁻¹)
+                    out_unit_str = re.sub(
+                        r"(\w)-(\d+)",
+                        lambda m: m.group(1) + _to_superscript(-int(m.group(2))),
+                        out_unit_str,
+                    )
+                return st + " " + out_unit_str
             return st
 
         if "*" in oformat:
@@ -403,13 +512,19 @@ class Magnitude:
             if u[i] == 1:
                 num = num + _unames[i] + " "
             elif u[i] > 0:
-                num = num + _unames[i] + str(u[i]) + " "
+                if _unicode_superscript:
+                    num = num + _unames[i] + _to_superscript(int(u[i])) + " "
+                else:
+                    num = num + _unames[i] + str(u[i]) + " "
         den = ""  # denominator
         for i in range(len(_unames)):
             if u[i] == -1:
                 den = den + _unames[i] + " "
             elif u[i] < 0:
-                den = den + _unames[i] + str(-u[i]) + " "
+                if _unicode_superscript:
+                    den = den + _unames[i] + _to_superscript(int(-u[i])) + " "
+                else:
+                    den = den + _unames[i] + str(-u[i]) + " "
         if den:
             if num == " ":
                 num += "1 "
@@ -424,25 +539,49 @@ class Magnitude:
         Can't divide: use with the numerator and the denominator
         separately (hence the "term").  Returns the Magnitude that the
         string represents.  Units are separated by spaces, powers are
-        integers following the unit name.
+        integers following the unit name or Unicode superscripts.
 
-        Cannot parse fractional units.  Cannot parse multi-digit
-        exponents.
+        Cannot parse fractional units.
 
         >>> a = mg(1, '')
         >>> print(a.term2mag('V2  A'))
         1.0000 m4 kg2 / s6 A
         >>> print(a.term2mag('kft year')) # kilo-feet year
         9618551037.0820 m s
+        >>> print(a.term2mag('m² s⁻²'))  # Unicode superscripts
+        1.0000 m2 / s2
         """
         m = Magnitude(1.0)
         units = re.split(r"\s", s)
         for u in units:
             if re.search(r"[^\s]", u):
                 exp = 1
-                if re.search(r"\d$", u):
-                    exp = int(u[-1])
-                    u = u[0:-1]
+
+                # Check for Unicode superscripts first
+                superscript_chars = ""
+                base_unit = u
+                for i, char in enumerate(u):
+                    if char in _superscript_map:
+                        superscript_chars = u[i:]
+                        base_unit = u[:i]
+                        break
+
+                if superscript_chars:
+                    parsed_exp = _parse_superscript(superscript_chars)
+                    if parsed_exp is not None:
+                        exp = parsed_exp
+                        u = base_unit
+                    else:
+                        # Invalid superscript, treat whole thing as unit
+                        pass
+                # Check for trailing digits (legacy format)
+                elif not superscript_chars:
+                    # Only check for trailing number if no superscript was found
+                    # Handle both positive (m2) and negative (s-1) exponents
+                    match = re.search(r"(-?\d+)$", u)
+                    if match:
+                        exp = int(match.group(1))
+                        u = u[: match.start()]
                 if u in _mags:
                     u = _mags[u].copy()
                 elif (len(u) >= 3) and u[0:2] in _prefix and u[2:] in _mags:
@@ -461,8 +600,12 @@ class Magnitude:
                     u = Magnitude(1.0)
                 else:
                     raise UnitError(f"Don't know about unit '{u}'")
-                for _ in range(exp):
-                    m._mult_by(u)
+                if exp > 0:
+                    for _ in range(exp):
+                        m._mult_by(u)
+                elif exp < 0:
+                    for _ in range(-exp):
+                        m._div_by(u)
         return m
 
     def sunit2mag(self, unit: str = "") -> "Magnitude":
@@ -550,14 +693,17 @@ class Magnitude:
         >>> print(a)
         1.0000 J
         """
-        self.out_unit = unit
         if unit:
+            # First parse the unit to ensure it's valid
             self.out_factor = self.sunit2mag(unit)
             if self.out_factor.unit != self.unit:
                 raise IncompatibleUnitsError(
                     self.out_factor.unit, self.unit, "setting output unit"
                 )
+            # Store the unit string as provided (e.g., 'J', 'km/h')
+            self.out_unit = unit
         else:
+            self.out_unit = None
             self.out_factor = None
         return self
 

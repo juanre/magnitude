@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `IncompatibleUnitsError` - Raised for operations on incompatible units, with attributes for accessing the conflicting units and operation
   - `ConversionError` - Raised when a value cannot be converted to a Magnitude
 - `__version__` attribute for programmatic version access
+- Unicode superscript support for unit notation:
+  - Input parsing accepts Unicode superscripts (e.g., `mg(10, 'm²/s²')`)
+  - Output formatting can display Unicode superscripts when enabled via `unicode_superscript(True)`
+  - Supports negative exponents (e.g., `s⁻¹`) and multi-digit exponents (e.g., `kg¹²`)
 - Modern development tooling:
   - Pre-commit hooks with isort, black, ruff, and mypy
   - Pytest configuration to run both unit tests and doctests
@@ -38,7 +42,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed all reverse arithmetic operations (`__radd__`, `__rsub__`, `__rtruediv__`, etc.) to properly handle non-Magnitude left operands
 - Added missing `__rfloordiv__`, `__rmod__`, and fixed `__rdivmod__` implementations
 - Added `__repr__` method for better REPL display
-
-## [1.0.2] - Previous version
-
-(Previous changelog entries would go here)
