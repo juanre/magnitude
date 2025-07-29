@@ -1,6 +1,6 @@
 [project]
 name = "magnitude"
-version = "1.1.1"
+version = "1.1.2"
 description = "Python library for computing with numbers with units"
 readme = "README.md"
 authors = [
@@ -38,7 +38,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-only-include = ["src"]
+packages = ["src/magnitude.py"]
 
 [dependency-groups]
 dev = [
@@ -50,9 +50,6 @@ dev = [
     "pytest-cov>=6.2.1",
     "ruff>=0.12.5",
 ]
-
-[tool.hatch.build]
-sources = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "src"]

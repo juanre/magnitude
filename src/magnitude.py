@@ -14,7 +14,7 @@ import os
 import re
 from typing import Any, Optional, Union
 
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 
 
 class MagnitudeError(Exception):
